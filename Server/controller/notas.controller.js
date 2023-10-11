@@ -2,7 +2,7 @@ import { pool } from "../db.js";
 
 export const getNotas = async (req, res) => {
     try {
-        const [resultado] = await pool.query('SELECT Titulo, Contenido, Fecha_Creacion FROM Nota ORDER BY Fecha_Creacion ASC')
+        const [resultado] = await pool.query('SELECT Id_Nota, Titulo, Contenido, Fecha_Creacion FROM Nota ORDER BY Fecha_Creacion ASC')
         res.json(resultado)
     } catch (error) {
         return res.status(500).json({ message: error.message })
