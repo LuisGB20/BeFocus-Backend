@@ -47,22 +47,20 @@ export const createNota = async (req, res) => {
 
 export const updateNota = async (req, res) => {
     try {
-        const [resultado] = await pool.query('UPDATE Nota SET ? WHERE Id_Nota = ?',
-        [
-            req.body,
-            req.params.id
-        ]);
-
-    res.json(resultado)
-    if (resultado.length === 0) return res.status(404).json({ message: 'Nota no encontrada' });
-    if (resultado.affectedRows === 0) return res.status(400).json({ message: 'No se pudo actualizar la nota' });
-    if (resultado.affectedRows === 1) return res.status(200).json({ message: 'Nota actualizada' });
-
+        const [resultado] = await pool.query('UPDATE Nota SET ? WHERE Id_Nota = ?', [req.body, req.params.id]);
+        
+        if (resultado.length === 0) {
+            res.status(404).json({ message: 'Nota no encontrada' });
+        } else if (resultado.affectedRows === 0) {
+            res.status(400).json({ message: 'No se pudo actualizar la nota' });
+        } else {
+            res.status(200).json({ message: 'Nota actualizada' });
+        }
     } catch (error) {
-       return res.status(500).json({ message: error.message })
-    } 
-    
+       res.status(500).json({ message: error.message });
+    }
 }
+
 
 export const deleteNota = async (req, res) => {
     try {
