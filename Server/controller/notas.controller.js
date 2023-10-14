@@ -14,12 +14,12 @@ export const getNota = async (req, res) => {
         const [resultado] = await pool.query('SELECT * FROM Nota WHERE Id_Nota = ?', [req.params.id])
 
         if (resultado.length === 0) return res.status(404).json({ message: 'Nota no encontrada' });
-    
+
         res.json(resultado[0]);
     } catch (error) {
-        return res.status(500).json({ message: error.message }) 
+        return res.status(500).json({ message: error.message })
     }
-    
+
 };
 
 export const createNota = async (req, res) => {
@@ -39,16 +39,17 @@ export const createNota = async (req, res) => {
             FK_Usuario,
             Fecha_Creacion
         })
-    }catch (error) {
+    } catch (error) {
         return res.status(500).json({ message: error.message })
     }
-    
+
 }
 
 export const updateNota = async (req, res) => {
     try {
-        const [resultado] = await pool.query('UPDATE Nota SET ? WHERE Id_Nota = ?', [req.body, req.params.id]);
-        
+        const { Titulo, Contenido } = req.body;
+        const [resultado] = await pool.query('UPDATE Nota SET Titulo = ?, Contenido = ? WHERE Id_Nota = ?', [Titulo, Contenido, req.params.id]);
+
         if (resultado.length === 0) {
             res.status(404).json({ message: 'Nota no encontrada' });
         } else if (resultado.affectedRows === 0) {
@@ -57,7 +58,7 @@ export const updateNota = async (req, res) => {
             res.status(200).json({ message: 'Nota actualizada' });
         }
     } catch (error) {
-       res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -73,5 +74,5 @@ export const deleteNota = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ message: error.message })
     }
-    
+
 }
