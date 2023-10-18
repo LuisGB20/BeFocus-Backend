@@ -24,17 +24,16 @@ export const getUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
     try {
-        const {Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenUsuario, TokenGoogle, TokenFacebook} = req.body;
-        const [resultado] = await pool.query('INSERT INTO Usuario(Nombre, Correo, Contrasena, imagen, FK_Tipo_Usuario, TokenUsuario, TokenGoogle, TokenFacebook) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        const {Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle} = req.body;
+        const [resultado] = await pool.query('INSERT INTO Usuario(Nombre, Correo, Contrasena, imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [
                 Nombre,
                 Correo,
                 Contrasena,
                 Imagen,
                 FK_Tipo_Usuario,
-                TokenUsuario,
+                TokenBeFocus,
                 TokenGoogle,
-                TokenFacebook
             ]);
         res.json({
             Id_Usuario: resultado.insertId,
@@ -43,9 +42,8 @@ export const createUser = async (req, res) => {
             Contrasena,
             Imagen,
             FK_Tipo_Usuario,
-            TokenUsuario,
+            TokenBeFocus,
             TokenGoogle,
-            TokenFacebook
         });
     } catch (error) {
         return res.status(500).json({message: error.message});
@@ -55,8 +53,8 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-        const {Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario} = req.body;
-        const [resultado] = await pool.query('UPDATE Usuario SET Nombre = ?, Correo = ?, Contrasena = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenUsuario = ?, TokenGoogle = ?, TokenFacebook = ? WHERE Id_Usuario = ?', [Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenUsuario, TokenGoogle, TokenFacebook, req.params.id]);
+        const {Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus} = req.body;
+        const [resultado] = await pool.query('UPDATE Usuario SET Nombre = ?, Correo = ?, Contrasena = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenBeFocus = ?, TokenGoogle = ? WHERE Id_Usuario = ?', [Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle, req.params.id]);
 
         if (resultado.length === 0) {
             res.status(404).json({ message: 'Usuario no encontrado' });
