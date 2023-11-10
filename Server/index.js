@@ -5,6 +5,9 @@ import { PORT } from "./config.js";
 import indexRoutes from "./routes/index.routes.js";
 import notasRoutes from "./routes/notas.routes.js";
 import usuariosRoutes from "./routes/usuarios.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+
+
 
 
 
@@ -21,6 +24,7 @@ app.use(indexRoutes);
 app.use(notasRoutes);
 app.use(usuariosRoutes);
 app.use(tareasRoutes);
+app.use(authRoutes);
 app.get('/', (req, res) => {
     res.send('Bienvenido a Befocus');
 });

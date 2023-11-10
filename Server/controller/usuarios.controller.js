@@ -1,4 +1,7 @@
-import {pool} from '../db.js'
+import { pool } from '../db.js'
+import { validationResult } from 'express-validator';
+import jwt from 'jsonwebtoken'; // Importa la biblioteca jsonwebtoken
+import bcrypt from 'bcrypt';
 
 
 export const getUsers = async (req, res) => {
@@ -6,18 +9,18 @@ export const getUsers = async (req, res) => {
         const [resultado] = await pool.query('SELECT * FROM usuario');
         res.json(resultado);
     } catch (error) {
-        return res.status(500).json({message: error.message});
+        return res.status(500).json({ message: error.message });
 
     }
 }
 
 export const getUser = async (req, res) => {
     try {
-        const [resultado] = await pool.query('SELECT * FROM usuario WHERE Correo = ?', [req.params.id]);
-        if (resultado.length === 0) return res.status(404).json({message: 'Usuario no encontrado'});
+        const [resultado] = await pool.query('SELECT * FROM usuario WHERE Correo = ?', [req.params.Correo]);
+        if (resultado.length === 0) return res.status(404).json({ message: 'Usuario no encontrado' });
         res.json(resultado[0]);
     } catch (error) {
-        return res.status(500).json({message: error.message});
+        return res.status(500).json({ message: error.message });
     }
 
 }
@@ -25,46 +28,65 @@ export const getUser = async (req, res) => {
 export const getUserGoogle = async (req, res) => {
     try {
         const [resultado] = await pool.query('SELECT * FROM usuario WHERE TokenGoogle = ?', [req.params.tokenGoogle]);
-        if (resultado.length === 0) return res.status(404).json({message: 'Usuario no encontrado'});
+
+        console.log(resultado.length)
+
+        if (resultado.length === 0) return res.status(404).json({ message: 'Usuario no encontrado' });
         res.json(resultado[0]);
+
+        const Correo = resultado[0].Correo;
+        // Genera un token JWT para el usuario
+        const token = jwt.sign({ userId: resultado[0].Id_Usuario, username: Correo }, 'tu_secreto');
+        console.log(token)
+        resultado[0].TokenBeFocus = token
+        console.log(resultado[0])
     } catch (error) {
-        return res.status(500).json({message: error.message});
+        return res.status(500).json({ message: error.message });
     }
 
 }
 
 export const createUser = async (req, res) => {
     try {
-        const {Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle} = req.body;
-        const [resultado] = await pool.query('INSERT INTO Usuario(Nombre, Correo, Contrasena, imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [
-                Nombre,
-                Correo,
-                Contrasena,
-                Imagen,
-                FK_Tipo_Usuario,
-                TokenBeFocus,
-                TokenGoogle,
-            ]);
+
+        // Validar los datos de entrada
+        validationResult(req).throw();
+
+        const { Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle } = req.body;
+
+        let hashedPassword = null
+
+        if (Contrasena) {
+            // Hash de la contraseña antes de almacenarla en la base de datos
+            const saltRounds = 10;
+            hashedPassword = await bcrypt.hash(Contrasena, saltRounds);
+            console.log(hashedPassword)
+        }
+
+        // Insertar el usuario en la base de datos con la contraseña hasheada
+        const [resultado] = await pool.query('INSERT INTO Usuario(Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [Nombre, Correo, hashedPassword, Imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle]);
+
+        // Genera un token JWT para el usuario
+        const token = jwt.sign({ userId: resultado.insertId, username: Correo }, 'tu_secreto');
+
         res.json({
             Id_Usuario: resultado.insertId,
             Nombre,
             Correo,
-            Contrasena,
             Imagen,
             FK_Tipo_Usuario,
-            TokenBeFocus,
+            TokenBeFocus: token,
             TokenGoogle,
         });
     } catch (error) {
-        return res.status(500).json({message: error.message});
+        return res.status(400).json({ message: 'Error en la validación de datos' });
     }
-
 }
 
 export const updateUser = async (req, res) => {
     try {
-        const {Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus} = req.body;
+        const { Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus } = req.body;
         const [resultado] = await pool.query('UPDATE Usuario SET Nombre = ?, Correo = ?, Contrasena = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenBeFocus = ?, TokenGoogle = ? WHERE Id_Usuario = ?', [Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle, req.params.id]);
 
         if (resultado.length === 0) {
@@ -75,7 +97,7 @@ export const updateUser = async (req, res) => {
             res.status(200).json({ message: 'Usuario actualizado' });
         }
     } catch (error) {
-        return res.status(500).json({message: error.message});
+        return res.status(500).json({ message: error.message });
     }
 
 }
