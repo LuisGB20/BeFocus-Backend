@@ -32,14 +32,14 @@ export const getUserGoogle = async (req, res) => {
         console.log(resultado.length)
 
         if (resultado.length === 0) return res.status(404).json({ message: 'Usuario no encontrado' });
-        res.json(resultado[0]);
 
         const Correo = resultado[0].Correo;
         // Genera un token JWT para el usuario
         const token = jwt.sign({ userId: resultado[0].Id_Usuario, username: Correo }, 'tu_secreto');
-        console.log(token)
+        console.log("Este es el token: " + token)
         resultado[0].TokenBeFocus = token
         console.log(resultado[0])
+        return res.json(resultado[0]);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
