@@ -5,7 +5,7 @@ import { getUsers, createUser, getUser, getUserGoogle, updateUser, deleteUser} f
 const router = Router();
 
 router.get("/Usuarios", getUsers)
-router.get("/Usuarios/:id", getUser)
+router.get("/Usuarios/:correo", getUser)
 router.get("/Usuarios/google/:tokenGoogle", getUserGoogle);
 router.post('/Registro', [
   body('Nombre').isLength({ min: 1 }).withMessage('El nombre es obligatorio'),
