@@ -2,10 +2,11 @@ import { pool } from "../db.js";
 
 export const getNotas = async (req, res) => {
     try {
-        const [resultado] = await pool.query('SELECT Id_Nota, Titulo, Contenido, Fecha_Creacion FROM Nota ORDER BY Fecha_Creacion ASC')
-        res.json(resultado)
+        const id_usuario = req.params.id_usuario;
+        const [resultado] = await pool.query('SELECT Id_Nota, Titulo, Contenido, Fecha_Creacion FROM Nota WHERE FK_Usuario = ? ORDER BY Fecha_Creacion ASC', [id_usuario]);
+        res.json(resultado);
     } catch (error) {
-        return res.status(500).json({ message: error.message })
+        return res.status(500).json({ message: error.message });
     }
 };
 

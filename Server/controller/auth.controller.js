@@ -26,7 +26,10 @@ export const inicioSesion = async(req, res) => {
       if (match) {
         // Generar un token JWT
         const token = jwt.sign({ userId: resultado[0].Id_Usuario, username: Correo }, 'tu_secreto');
-        res.status(200).json(token);
+        resultado[0][0].token = token;
+        const respuesta = resultado[0][0];
+        console.log(respuesta)
+        res.status(200).json(respuesta);
       } else {
         return res.status(401).json({ message: 'Contraseña incorrecta' });
       }
