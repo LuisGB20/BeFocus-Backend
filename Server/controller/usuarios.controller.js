@@ -85,21 +85,31 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-        const { Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus } = req.body;
-        const [resultado] = await pool.query('UPDATE Usuario SET Nombre = ?, Correo = ?, Contrasena = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenBeFocus = ?, TokenGoogle = ? WHERE Id_Usuario = ?', [Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus, TokenGoogle, req.params.id]);
-
-        if (resultado.length === 0) {
-            res.status(404).json({ message: 'Usuario no encontrado' });
-        } else if (resultado.affectedRows === 0) {
-            res.status(400).json({ message: 'No se pudo actualizar el usuario' });
-        } else {
-            res.status(200).json({ message: 'Usuario actualizado' });
-        }
+      const { Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus } = req.body;
+      let hashedPassword = null;
+  
+      if (Contrasena) {
+        // Hash de la nueva contraseña antes de actualizarla en la base de datos
+        const saltRounds = 10;
+        hashedPassword = await bcrypt.hash(Contrasena, saltRounds);
+      }
+  
+      const [resultado] = await pool.query(
+        'UPDATE Usuario SET Nombre = ?, Correo = ?, Contrasena = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenBeFocus = ? WHERE Id_Usuario = ?',
+        [Nombre, Correo, hashedPassword, Imagen, FK_Tipo_Usuario, TokenBeFocus, req.params.id]
+      );
+  
+      if (resultado.length === 0) {
+        res.status(404).json({ message: 'Usuario no encontrado' });
+      } else if (resultado.affectedRows === 0) {
+        res.status(400).json({ message: 'No se pudo actualizar el usuario' });
+      } else {
+        res.status(200).json({ message: 'Usuario actualizado' });
+      }
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+      return res.status(500).json({ message: error.message });
     }
-
-}
+  };
 
 export const deleteUser = async (req, res) => {
     try {
