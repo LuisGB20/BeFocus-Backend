@@ -9,10 +9,10 @@ import {
 
 const router = Router();
 
-router.get('/tareas', getTareas);
+router.get('/tareas/:id_usuario', getTareas);
 router.post('/tareas', createTarea);
 router.put('/tareas/:id', updateTarea);
-router.get('/tareas/:id', getTarea);
+router.get('/tareas/tarea/:id', getTarea);
 router.delete('/tareas/:id', deleteTarea);
 
 export default router;

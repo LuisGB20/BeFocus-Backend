@@ -2,8 +2,8 @@ import { pool } from '../db.js';
 
 export const getTareas = async (req, res) => {
     try {
-        const {Estatus} = req.query
-        const [resultado] = await pool.query('SELECT * FROM Tarea WHERE Estatus = ? ORDER BY Fecha ASC ', [Estatus]);
+        const id_usuario = req.params.id_usuario;
+        const [resultado] = await pool.query('SELECT * FROM Tarea WHERE FK_Usuario = ? ORDER BY Fecha ASC', [id_usuario]);
         res.json(resultado);
     } catch (error) {
         return res.status(500).json({ message: error.message });

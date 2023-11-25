@@ -6,6 +6,7 @@ import indexRoutes from "./routes/index.routes.js";
 import notasRoutes from "./routes/notas.routes.js";
 import usuariosRoutes from "./routes/usuarios.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import recuperarcontra from "./routes/recuperarcontra.routes.js"
 
 
 
@@ -25,6 +26,7 @@ app.use(notasRoutes);
 app.use(usuariosRoutes);
 app.use(tareasRoutes);
 app.use(authRoutes);
+app.use(recuperarcontra);
 app.get('/', (req, res) => {
     res.send('Bienvenido a Befocus');
 });
