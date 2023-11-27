@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 
 // Genera un código de verificación
 const generarCodigoVerificacion = () => {
-  return randomstring.generate(8);
+  return randomstring.generate(6);
 };
 
 const enviarCorreo = async (correo, codigo) => {
@@ -69,10 +69,12 @@ export const forgetpassword = async (req, res) => {
 
     const userExistsResult = await pool.query(userExistsQuery, userExistsParams);
 
-    if (userExistsResult.length === 0) {
+    if (userExistsResult[0].length === 0) {
       // User does not exist
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+
+    console.log(userExistsResult[0])
 
     // Generate verification code
     const codigoVerificacion = generarCodigoVerificacion();
@@ -152,8 +154,8 @@ export const actualizarContrasena = async (req, res) => {
 
     if (updatePasswordResult[0].affectedRows === 0) {
       
-      // No se encontró el usuario
-      return res.status(404).json({ message: 'Usuario no encontrado' });
+      // Algo ha salido mal, intentalo mas tarde
+      return res.status(404).json({ message: 'Algo ha salido mal, intentalo mas tarde' });
     }
     console.log(updatePasswordResult[0])
 
