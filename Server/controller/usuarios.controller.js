@@ -85,31 +85,54 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-      const { Nombre, Correo, Imagen, FK_Tipo_Usuario, TokenBeFocus } = req.body;
-      let hashedPassword = null;
-  
-    //   if (Contrasena) {
-    //     // Hash de la nueva contraseña antes de actualizarla en la base de datos
-    //     const saltRounds = 10;
-    //     hashedPassword = await bcrypt.hash(Contrasena, saltRounds);
-    //   }
-  
-      const [resultado] = await pool.query(
-        'UPDATE Usuario SET Nombre = ?, Correo = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenBeFocus = ? WHERE Id_Usuario = ?',
-        [Nombre, Correo, Imagen, FK_Tipo_Usuario, TokenBeFocus, req.params.id]
-      );
-  
-      if (resultado.length === 0) {
-        res.status(404).json({ message: 'Usuario no encontrado' });
-      } else if (resultado.affectedRows === 0) {
-        res.status(400).json({ message: 'No se pudo actualizar el usuario' });
-      } else {
-        res.status(200).json({ message: 'Usuario actualizado' });
-      }
+        const { Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus } = req.body;
+        let hashedPassword = null;
+
+        if (Contrasena) {
+            // Verifica si la contraseña proporcionada es diferente de la almacenada en la base de datos
+            const [user] = await pool.query('SELECT Contrasena FROM Usuario WHERE Id_Usuario = ?', [req.params.id]);
+            console.log(user)
+            console.log(Contrasena)
+
+            if (user.length > 0) {
+                const storedPassword = user[0].Contrasena;
+                console.log(storedPassword)
+                console.log(Contrasena)
+                console.log(storedPassword === Contrasena)
+
+                // Compara las contraseñas
+                const isPasswordMatch = await bcrypt.compare(Contrasena, storedPassword);
+
+                if (!(storedPassword === Contrasena)) {
+                    console.log(isPasswordMatch)
+                    console.log("Contraseñas diferentes")
+                    // Hash de la nueva contraseña antes de actualizarla en la base de datos
+                    const saltRounds = 10;
+                    hashedPassword = await bcrypt.hash(Contrasena, saltRounds);
+                } else {
+                    console.log("Contraseña igual");
+                    // Si las contraseñas son iguales, no es necesario hacer el hash
+                    hashedPassword = Contrasena;
+                }
+            }
+        }
+
+        const [resultado] = await pool.query(
+            'UPDATE Usuario SET Nombre = ?, Correo = ?, Contrasena = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenBeFocus = ? WHERE Id_Usuario = ?',
+            [Nombre, Correo, hashedPassword, Imagen, FK_Tipo_Usuario, TokenBeFocus, req.params.id]
+        );
+
+        if (resultado.length === 0) {
+            res.status(404).json({ message: 'Usuario no encontrado' });
+        } else if (resultado.affectedRows === 0) {
+            res.status(400).json({ message: 'No se pudo actualizar el usuario' });
+        } else {
+            res.status(200).json({ message: 'Usuario actualizado' });
+        }
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
-  };
+};
 
 export const deleteUser = async (req, res) => {
     try {
