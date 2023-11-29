@@ -85,18 +85,18 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-      const { Nombre, Correo, Contrasena, Imagen, FK_Tipo_Usuario, TokenBeFocus } = req.body;
+      const { Nombre, Correo, Imagen, FK_Tipo_Usuario, TokenBeFocus } = req.body;
       let hashedPassword = null;
   
-      if (Contrasena) {
-        // Hash de la nueva contraseña antes de actualizarla en la base de datos
-        const saltRounds = 10;
-        hashedPassword = await bcrypt.hash(Contrasena, saltRounds);
-      }
+    //   if (Contrasena) {
+    //     // Hash de la nueva contraseña antes de actualizarla en la base de datos
+    //     const saltRounds = 10;
+    //     hashedPassword = await bcrypt.hash(Contrasena, saltRounds);
+    //   }
   
       const [resultado] = await pool.query(
-        'UPDATE Usuario SET Nombre = ?, Correo = ?, Contrasena = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenBeFocus = ? WHERE Id_Usuario = ?',
-        [Nombre, Correo, hashedPassword, Imagen, FK_Tipo_Usuario, TokenBeFocus, req.params.id]
+        'UPDATE Usuario SET Nombre = ?, Correo = ?, imagen = ?, FK_Tipo_Usuario = ?, TokenBeFocus = ? WHERE Id_Usuario = ?',
+        [Nombre, Correo, Imagen, FK_Tipo_Usuario, TokenBeFocus, req.params.id]
       );
   
       if (resultado.length === 0) {
